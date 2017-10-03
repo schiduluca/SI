@@ -10,7 +10,7 @@ Language of choice: **Java**
 
 **Server.java** - accepts a ``TCP`` connection and waits for incoming messages from the connected ``client``
 
-```
+```java
  public static void main(String[] args) {
 
         ObjectInputStream reader;
@@ -37,7 +37,7 @@ Language of choice: **Java**
 
 **Client.java** - connects to ``server`` and sends string messages read from the keyboard.
 
-```
+```java
  public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         ObjectOutputStream writer = null;
@@ -56,3 +56,68 @@ Language of choice: **Java**
         }
     }
 ```
+
+- port scanning of a given IP (with possibility of including a range of ports; ex: 1-100)
+
+```java
+public static void main(String[] args) {
+        long portCount = IntStream.range(from, to).filter(i -> {
+            try {
+                Socket socket = new Socket("localhost", i);
+                return true;
+            } catch (IOException e) {
+                return false;
+            }
+        }).count();
+
+        System.out.println(portCount);
+    }
+
+```
+
+- send file over network (image)
+
+ServerFile.java
+```java
+ public static void main(String[] args) throws IOException {
+        ServerSocket serverSocket = new ServerSocket(1234);
+
+        Socket socket = serverSocket.accept();
+
+        OutputStream outputStream = socket.getOutputStream();
+        BufferedImage image = ImageIO.read(new File("/home/lschidu/Downloads/rick.jpg"));
+
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        ImageIO.write(image, "jpg", byteArrayOutputStream);
+
+        byte[] size = ByteBuffer.allocate(4).putInt(byteArrayOutputStream.size()).array();
+        outputStream.write(size);
+        outputStream.flush();
+        outputStream.write(byteArrayOutputStream.toByteArray());
+        outputStream.flush();
+
+    }
+ ```
+ 
+ ClientFile.java
+ 
+ ```java
+  public static void main(String[] args) throws IOException {
+        Socket socket = new Socket("localhost", 1234);
+        InputStream inputStream = socket.getInputStream();
+
+        byte[] sizeAr = new byte[4];
+        inputStream.read(sizeAr);
+        int size = ByteBuffer.wrap(sizeAr).asIntBuffer().get();
+
+        System.out.println(size);
+        byte[] imageAr = new byte[size];
+        inputStream.read(imageAr);
+        BufferedImage image = ImageIO.read(new ByteArrayInputStream(imageAr));
+
+        ImageIO.write(image, "jpg", new File("/home/lschidu/Desktop/rick.jpg"));
+
+    }
+ 
+ ```
+        
