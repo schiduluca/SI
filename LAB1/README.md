@@ -56,7 +56,7 @@ Language of choice: **Java**
         }
     }
 ```
-
+-----
 - port scanning of a given IP (with possibility of including a range of ports; ex: 1-100)
 
 ```java
@@ -74,7 +74,7 @@ public static void main(String[] args) {
     }
 
 ```
-
+-----
 - send file over network (image)
 
 ServerFile.java
@@ -121,3 +121,33 @@ ServerFile.java
  
  ```
         
+
+----
+
+- send messaged on fixed intervals
+
+ClientFixedInterval.java
+```java
+public static void main(String[] args) {
+
+        ObjectOutputStream writer = null;
+        try {
+            Socket socket = new Socket("localhost",  8080);
+            writer = new ObjectOutputStream(socket.getOutputStream());
+
+            for (int i = 0; i < Integer.parseInt(args[0]); i++) {
+                writer.writeUTF("Hello");
+                writer.flush();
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+```
